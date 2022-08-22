@@ -1,5 +1,5 @@
 const newGame = (fieldMatrix) => {
-  fieldMatrix = new Array(4).fill(null).map(() => new Array(4).fill(null));
+  fieldMatrix = new Array(4).fill().map(() => new Array(4).fill(null));
   let notMatch = false;
   while (notMatch === false) {
     let x1 = getRandom(0, 4);
@@ -21,6 +21,42 @@ const getRandom = (min, max) => {
   return Math.floor(Math.random() * (max - min)) + min - 1;  //вычитаем 1 для получения коректного значения
 }
 
+const fillField = (fieldMatrix) => {
+  let cells = document.getElementsByClassName("grid-cell");
+  let z = 0;
+  for (let y = 0; y < fieldSize; y++){
+    for (let x = 0; x < fieldSize; x++){
+      cells[z].innerHTML = fieldMatrix[y][x];
+      
+      cells[z].classList.add('grid-cell')
+      cells[z].dataset.value = cells[z].textContent; 
+      z++
+    }
+  }
+}
+
+const pushNewElement = (fieldMatrix) => {
+  const emptyPlace = [];
+  let isFreePlace = false;
+  for (let y = 0; y < fieldSize; y++) {
+    for (let x = 0; x < fieldSize; x++) {
+      if (fieldMatrix[y][x] === null) {
+        emptyPlace.push([y, x]);
+        isFreePlace = true;
+      }
+    }
+  }
+  if (isFreePlace) {
+    randomIndex = getRandom(0, emptyPlace.length - 1);
+    fieldMatrix[emptyPlace[randomIndex][0]][emptyPlace[randomIndex][1]] = 2;
+    console.log()
+  }
+
+  else {
+    return false;
+  }
+}
+
 const pressArrowUp = (fieldMatrix) => {
   for (let x = 0; x < fieldSize; x++) {
     for (let y = 0; y < fieldSize; y++) {
@@ -36,7 +72,7 @@ const pressArrowUp = (fieldMatrix) => {
           fieldMatrix[y2][x] = null;
           y = y2;
         } else {
-          y = y2 + 1;
+          y = y2 - 1;
         }
         break;
       }
@@ -48,26 +84,28 @@ const pressArrowUp = (fieldMatrix) => {
         continue;
       }
       if (fieldMatrix[y3][x] != null) {
-        y3--;
+        y3++;
       }
       if (y3 === y) {
         continue;
       }
+      console.log(`y = ${y},y3 = ${y3},x = ${x}`);
       fieldMatrix[y3][x] = fieldMatrix[y][x];
       fieldMatrix[y][x] = null;
     }
   }
+  pushNewElement(fieldMatrix);
   return (fieldMatrix);
 
 }
 
 const pressArrowDown = (fieldMatrix) => {
   for (let x = 0; x < fieldSize; x++) {
-    for (let y = fieldMatrix-1; y >0; y--) {
+    for (let y = fieldSize - 1; y > 0; y--) {
       if (fieldMatrix[y][x] === null) {
         continue;
       }
-      for (let y2 = y -1 ; y2 >=0 ; y2--) {
+      for (let y2 = y - 1; y2 >= 0; y2--) {
         if (fieldMatrix[y2][x] === null) {
           continue;
         }
@@ -82,8 +120,8 @@ const pressArrowDown = (fieldMatrix) => {
       }
     }
 
-    let y3 = fieldSize -1;
-    for (let y = fieldSize-2; y >= 0; y--) {
+    let y3 = fieldSize - 1;
+    for (let y = fieldSize - 2; y >= 0; y--) {
       if (fieldMatrix[y][x] === null) {
         continue;
       }
@@ -97,15 +135,17 @@ const pressArrowDown = (fieldMatrix) => {
       fieldMatrix[y][x] = null;
     }
   }
+  pushNewElement(fieldMatrix);
   return (fieldMatrix);
 }
-const pressArrowLeft = (fieldMatrix) => {
+const pressArrowLeft = (fieldMatrix) => { 
   for (let y = 0; y < fieldSize; y++) {
     for (let x = 0; x < fieldSize; x++) {
       if (fieldMatrix[y][x] === null) {
         continue;
       }
       for (let x2 = x + 1; x2 < fieldSize; x2++) {
+        console.log(`y = ${y} x = ${x} x2 = ${x2} prev=${fieldMatrix[y][x]} next =${fieldMatrix[y][x2]}`);
         if (fieldMatrix[y][x2] === null) {
           continue;
         }
@@ -114,7 +154,7 @@ const pressArrowLeft = (fieldMatrix) => {
           fieldMatrix[y][x2] = null;
           x = x2;
         } else {
-          x = x2 + 1;
+          x = x2 -1;
         }
         break;
       }
@@ -126,7 +166,7 @@ const pressArrowLeft = (fieldMatrix) => {
         continue;
       }
       if (fieldMatrix[y][x3] != null) {
-        x3--;
+        x3++;
       }
       if (x3 === x) {
         continue;
@@ -135,6 +175,7 @@ const pressArrowLeft = (fieldMatrix) => {
       fieldMatrix[y][x] = null;
     }
   }
+  pushNewElement(fieldMatrix);
   return (fieldMatrix);
 }
 const pressArrowRight = (fieldMatrix) => {
@@ -173,29 +214,33 @@ const pressArrowRight = (fieldMatrix) => {
       fieldMatrix[y][x] = null;
     }
   }
+  pushNewElement(fieldMatrix);
   return (fieldMatrix);
 }
 
 document.addEventListener('keydown', function (event) {
   if (event.code === 'ArrowUp') {
-  pressArrowUp(fieldMatrix);
-}
+    pressArrowUp(fieldMatrix);
+  }
 
-if (event.code === 'ArrowDown') {
-  pressArrowDown(fieldMatrix);
-}
+  if (event.code === 'ArrowDown') {
+    pressArrowDown(fieldMatrix);
+  }
 
-if (event.code === 'ArrowLeft') {
-  pressArrowLeft(fieldMatrix);
-  
-}
+  if (event.code === 'ArrowLeft') {
+    pressArrowLeft(fieldMatrix);
 
-if (event.code === 'ArrowRight') {
-  pressArrowRight(fieldMatrix);
-}
-console.log(fieldMatrix);
+  }
+
+  if (event.code === 'ArrowRight') {
+    pressArrowRight(fieldMatrix);
+  }
+  fillField(fieldMatrix);
+  console.log(fieldMatrix);
 });
 
-fieldMatrix = newGame();
-fieldSize = fieldMatrix.length;
+
+let fieldMatrix = newGame();
+const fieldSize = fieldMatrix.length;
+fillField(fieldMatrix);
 console.log(fieldMatrix);
