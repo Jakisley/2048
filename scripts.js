@@ -1,14 +1,14 @@
 
 let yourScore = document.querySelector(".score-container");
 let bestScore = document.querySelector(".best-container");
-if (localStorage.getItem('bestScore') === null) {
-  localStorage.setItem('bestScore', '0')
+if (!localStorage.getItem('bestScore')) {
+  localStorage.setItem('bestScore', '0');
 }
 bestScore.innerHTML = localStorage.getItem('bestScore');
 
 
 
-const startNewGame = () => {
+const initField = () => {
   let fieldMatrix = new Array(4).fill().map(() => new Array(4).fill(null));
   let notMatch = false;
   yourScore.innerHTML = 0;
@@ -25,12 +25,18 @@ const startNewGame = () => {
   }
   return fieldMatrix;
 }
-
+const startNewGame = () => {
+  fieldMatrix = initField();
+  localStorage.setItem('score', '0');
+  saveField();
+  fillField(fieldMatrix);
+}
 const getRandom = (min, max) => {
   min = Math.ceil(min + 1);  //добавляем 1 для искулючения умножения на ноль
   max = Math.floor(max + 1);
   return Math.floor(Math.random() * (max - min)) + min - 1;  //вычитаем 1 для получения коректного значения
 }
+
 
 const fillField = (fieldMatrix) => {
   let cells = document.getElementsByClassName("grid-cell");
@@ -49,6 +55,7 @@ const fillField = (fieldMatrix) => {
 const pushNewElement = (fieldMatrix) => {
   const emptyPlace = [];
   let isFreePlace = false;
+  let newElement = getRandom(1, 10) < 9 ? 2 : 4;
   for (let y = 0; y < fieldSize; y++) {
     for (let x = 0; x < fieldSize; x++) {
       if (fieldMatrix[y][x] === null) {
@@ -59,7 +66,7 @@ const pushNewElement = (fieldMatrix) => {
   }
   if (isFreePlace) {
     randomIndex = getRandom(0, emptyPlace.length - 1);
-    fieldMatrix[emptyPlace[randomIndex][0]][emptyPlace[randomIndex][1]] = 2;
+    fieldMatrix[emptyPlace[randomIndex][0]][emptyPlace[randomIndex][1]] = newElement;
     console.log()
   }
 
@@ -67,9 +74,21 @@ const pushNewElement = (fieldMatrix) => {
     return false;
   }
 }
-
+const saveField = () => {
+  localStorage.setItem('field', JSON.stringify(fieldMatrix));
+}
 const updateScore = (newValue) => {
   yourScore.innerHTML = +yourScore.textContent + newValue;
+  localStorage.setItem('score', yourScore.textContent);
+  if (+yourScore.textContent > +localStorage.getItem('bestScore')) {
+    localStorage.setItem('bestScore', yourScore.textContent);
+    bestScore.innerHTML = localStorage.getItem('bestScore');
+  }
+}
+
+const updateStorage = () => {
+  localStorage.setItem('score', yourScore.textContent);
+  localStorage.setItem('field', JSON.stringify(fieldMatrix));
   if (+yourScore.textContent > +localStorage.getItem('bestScore')) {
     localStorage.setItem('bestScore', yourScore.textContent);
     bestScore.innerHTML = localStorage.getItem('bestScore');
@@ -204,7 +223,6 @@ const pressArrowLeft = (fieldMatrix) => {
         continue;
       }
       for (let x2 = x + 1; x2 < fieldSize; x2++) {
-        console.log(`y = ${y} x = ${x} x2 = ${x2} prev=${fieldMatrix[y][x]} next =${fieldMatrix[y][x2]}`);
         if (fieldMatrix[y][x2] === null) {
           continue;
         }
@@ -240,7 +258,6 @@ const pressArrowLeft = (fieldMatrix) => {
   return (fieldMatrix);
 }
 
-
 document.addEventListener('keydown', function (event) {
   if (event.code === 'ArrowUp') {
     pressArrowUp(fieldMatrix);
@@ -259,14 +276,18 @@ document.addEventListener('keydown', function (event) {
     pressArrowRight(fieldMatrix);
   }
   fillField(fieldMatrix);
+  saveField(fieldMatrix);
   console.log(fieldMatrix);
 });
-
-let fieldMatrix = startNewGame();
+let fieldMatrix = [];
+if (localStorage.getItem('field')) {
+  fieldMatrix = JSON.parse(localStorage.getItem('field'));
+  yourScore.innerHTML = localStorage.getItem('score');
+}
+else {
+  fieldMatrix = initField();
+}
 const fieldSize = fieldMatrix.length;
 fillField(fieldMatrix);
-console.log(fieldMatrix);
-const newGameBtn = document.querySelector('.restart-button').onclick = () => {
-  fieldMatrix = startNewGame(); 
-  fillField(fieldMatrix);
-}
+
+const newGameBtn = document.querySelector('.restart-button').onclick = () => startNewGame();
