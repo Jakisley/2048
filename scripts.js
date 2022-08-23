@@ -1,6 +1,17 @@
-const initField = () => {
+
+let yourScore = document.querySelector(".score-container");
+let bestScore = document.querySelector(".best-container");
+if (localStorage.getItem('bestScore') === null) {
+  localStorage.setItem('bestScore', '0')
+}
+bestScore.innerHTML = localStorage.getItem('bestScore');
+
+
+
+const startNewGame = () => {
   let fieldMatrix = new Array(4).fill().map(() => new Array(4).fill(null));
   let notMatch = false;
+  yourScore.innerHTML = 0;
   while (notMatch === false) {
     let x1 = getRandom(0, 4);
     let y1 = getRandom(0, 4);
@@ -59,8 +70,8 @@ const pushNewElement = (fieldMatrix) => {
 
 const updateScore = (newValue) => {
   yourScore.innerHTML = +yourScore.textContent + newValue;
-  if (+yourScore.textContent > +localStorage.getItem('bestScore')){
-    localStorage.setItem('bestScore',yourScore.textContent);
+  if (+yourScore.textContent > +localStorage.getItem('bestScore')) {
+    localStorage.setItem('bestScore', yourScore.textContent);
     bestScore.innerHTML = localStorage.getItem('bestScore');
   }
 }
@@ -251,14 +262,11 @@ document.addEventListener('keydown', function (event) {
   console.log(fieldMatrix);
 });
 
-
-let fieldMatrix = initField();
-let yourScore = document.getElementsByClassName("score-container")[0];
-let bestScore = document.getElementsByClassName("best-container")[0];
-if (localStorage.getItem('bestScore') === null) {
-  localStorage.setItem('bestScore', '0')
-}
-bestScore.innerHTML = localStorage.getItem('bestScore');
+let fieldMatrix = startNewGame();
 const fieldSize = fieldMatrix.length;
 fillField(fieldMatrix);
 console.log(fieldMatrix);
+const newGameBtn = document.querySelector('.restart-button').onclick = () => {
+  fieldMatrix = startNewGame(); 
+  fillField(fieldMatrix);
+}
