@@ -38,13 +38,12 @@ const getRandom = (min, max) => {
 }
 
 
-const fillField = (fieldMatrix) => {
+const fillField = () => {
   let cells = document.getElementsByClassName("grid-cell");
   let z = 0;
   for (let y = 0; y < fieldSize; y++) {
     for (let x = 0; x < fieldSize; x++) {
       cells[z].innerHTML = fieldMatrix[y][x];
-
       cells[z].classList.add('grid-cell')
       cells[z].dataset.value = cells[z].textContent;
       z++
@@ -52,7 +51,7 @@ const fillField = (fieldMatrix) => {
   }
 }
 
-const pushNewElement = (fieldMatrix) => {
+const pushNewElement = () => {
   const emptyPlace = [];
   let isFreePlace = false;
   let newElement = getRandom(1, 10) < 9 ? 2 : 4;
@@ -73,6 +72,15 @@ const pushNewElement = (fieldMatrix) => {
   else {
     return false;
   }
+}
+const isSameField = () => {
+  console.log 
+  if (JSON.stringify(fieldMatrix)!=JSON.stringify(prevfieldMatrix)){
+    return true;
+  }
+  else{
+    return false
+  };
 }
 const saveField = () => {
   localStorage.setItem('field', JSON.stringify(fieldMatrix));
@@ -95,7 +103,7 @@ const updateStorage = () => {
   }
 }
 
-const pressArrowUp = (fieldMatrix) => {
+const pressArrowUp = () => {
   for (let x = 0; x < fieldSize; x++) {
     for (let y = 0; y < fieldSize; y++) {
       if (fieldMatrix[y][x] === null) {
@@ -132,11 +140,11 @@ const pressArrowUp = (fieldMatrix) => {
       fieldMatrix[y][x] = null;
     }
   }
-  pushNewElement(fieldMatrix);
-  return (fieldMatrix);
-
+  if(isSameField()){
+    pushNewElement();
+  }
 }
-const pressArrowRight = (fieldMatrix) => {
+const pressArrowRight = () => {
   for (let y = 0; y < fieldSize; y++) {
     for (let x = fieldSize - 1; x > 0; x--) {
       if (fieldMatrix[y][x] === null) {
@@ -173,10 +181,11 @@ const pressArrowRight = (fieldMatrix) => {
       fieldMatrix[y][x] = null;
     }
   }
-  pushNewElement(fieldMatrix);
-  return (fieldMatrix);
+  if(isSameField()){
+    pushNewElement();
+  }
 }
-const pressArrowDown = (fieldMatrix) => {
+const pressArrowDown = () => {
   for (let x = 0; x < fieldSize; x++) {
     for (let y = fieldSize - 1; y > 0; y--) {
       if (fieldMatrix[y][x] === null) {
@@ -213,10 +222,11 @@ const pressArrowDown = (fieldMatrix) => {
       fieldMatrix[y][x] = null;
     }
   }
-  pushNewElement(fieldMatrix);
-  return (fieldMatrix);
+  if(isSameField()){
+    pushNewElement();
+  }
 }
-const pressArrowLeft = (fieldMatrix) => {
+const pressArrowLeft = () => {
   for (let y = 0; y < fieldSize; y++) {
     for (let x = 0; x < fieldSize; x++) {
       if (fieldMatrix[y][x] === null) {
@@ -254,32 +264,35 @@ const pressArrowLeft = (fieldMatrix) => {
       fieldMatrix[y][x] = null;
     }
   }
-  pushNewElement(fieldMatrix);
-  return (fieldMatrix);
+  if(isSameField()){
+    pushNewElement();
+  }
 }
 
 document.addEventListener('keydown', function (event) {
   if (event.code === 'ArrowUp') {
-    pressArrowUp(fieldMatrix);
+    pressArrowUp();
   }
 
   if (event.code === 'ArrowDown') {
-    pressArrowDown(fieldMatrix);
+    pressArrowDown();
   }
 
   if (event.code === 'ArrowLeft') {
-    pressArrowLeft(fieldMatrix);
+    pressArrowLeft();
 
   }
 
   if (event.code === 'ArrowRight') {
-    pressArrowRight(fieldMatrix);
+    pressArrowRight();
   }
-  fillField(fieldMatrix);
-  saveField(fieldMatrix);
+  fillField();
+  saveField();
+  prevfieldMatrix = JSON.parse(localStorage.getItem('field'));
   console.log(fieldMatrix);
 });
 let fieldMatrix = [];
+let prevfieldMatrix = [];
 if (localStorage.getItem('field')) {
   fieldMatrix = JSON.parse(localStorage.getItem('field'));
   yourScore.innerHTML = localStorage.getItem('score');
@@ -288,6 +301,6 @@ else {
   fieldMatrix = initField();
 }
 const fieldSize = fieldMatrix.length;
-fillField(fieldMatrix);
+fillField();
 
 const newGameBtn = document.querySelector('.restart-button').onclick = () => startNewGame();
