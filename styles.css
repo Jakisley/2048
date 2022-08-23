@@ -170,10 +170,9 @@ h1.title {
   cursor: pointer;
   margin-left: 9px;
 }
-.game-message a.keep-playing-button {
-  display: none;
+.show{
+  display: flex;
 }
-
 .game-message.game-won {
   background: rgba(237, 194, 46, 0.5);
   color: #f9f6f2;
