@@ -1,5 +1,5 @@
-const newGame = (fieldMatrix) => {
-  fieldMatrix = new Array(4).fill().map(() => new Array(4).fill(null));
+const initField = () => {
+  let fieldMatrix = new Array(4).fill().map(() => new Array(4).fill(null));
   let notMatch = false;
   while (notMatch === false) {
     let x1 = getRandom(0, 4);
@@ -24,12 +24,12 @@ const getRandom = (min, max) => {
 const fillField = (fieldMatrix) => {
   let cells = document.getElementsByClassName("grid-cell");
   let z = 0;
-  for (let y = 0; y < fieldSize; y++){
-    for (let x = 0; x < fieldSize; x++){
+  for (let y = 0; y < fieldSize; y++) {
+    for (let x = 0; x < fieldSize; x++) {
       cells[z].innerHTML = fieldMatrix[y][x];
-      
+
       cells[z].classList.add('grid-cell')
-      cells[z].dataset.value = cells[z].textContent; 
+      cells[z].dataset.value = cells[z].textContent;
       z++
     }
   }
@@ -57,6 +57,14 @@ const pushNewElement = (fieldMatrix) => {
   }
 }
 
+const updateScore = (newValue) => {
+  yourScore.innerHTML = +yourScore.textContent + newValue;
+  if (+yourScore.textContent > +localStorage.getItem('bestScore')){
+    localStorage.setItem('bestScore',yourScore.textContent);
+    bestScore.innerHTML = localStorage.getItem('bestScore');
+  }
+}
+
 const pressArrowUp = (fieldMatrix) => {
   for (let x = 0; x < fieldSize; x++) {
     for (let y = 0; y < fieldSize; y++) {
@@ -70,6 +78,7 @@ const pressArrowUp = (fieldMatrix) => {
         if (fieldMatrix[y][x] === fieldMatrix[y2][x]) {
           fieldMatrix[y][x] *= 2;
           fieldMatrix[y2][x] = null;
+          updateScore(fieldMatrix[y][x]);
           y = y2;
         } else {
           y = y2 - 1;
@@ -89,7 +98,6 @@ const pressArrowUp = (fieldMatrix) => {
       if (y3 === y) {
         continue;
       }
-      console.log(`y = ${y},y3 = ${y3},x = ${x}`);
       fieldMatrix[y3][x] = fieldMatrix[y][x];
       fieldMatrix[y][x] = null;
     }
@@ -97,86 +105,6 @@ const pressArrowUp = (fieldMatrix) => {
   pushNewElement(fieldMatrix);
   return (fieldMatrix);
 
-}
-
-const pressArrowDown = (fieldMatrix) => {
-  for (let x = 0; x < fieldSize; x++) {
-    for (let y = fieldSize - 1; y > 0; y--) {
-      if (fieldMatrix[y][x] === null) {
-        continue;
-      }
-      for (let y2 = y - 1; y2 >= 0; y2--) {
-        if (fieldMatrix[y2][x] === null) {
-          continue;
-        }
-        if (fieldMatrix[y][x] === fieldMatrix[y2][x]) {
-          fieldMatrix[y][x] *= 2;
-          fieldMatrix[y2][x] = null;
-          y = y2;
-        } else {
-          y = y2 + 1;
-        }
-        break;
-      }
-    }
-
-    let y3 = fieldSize - 1;
-    for (let y = fieldSize - 2; y >= 0; y--) {
-      if (fieldMatrix[y][x] === null) {
-        continue;
-      }
-      if (fieldMatrix[y3][x] != null) {
-        y3--;
-      }
-      if (y3 === y) {
-        continue;
-      }
-      fieldMatrix[y3][x] = fieldMatrix[y][x];
-      fieldMatrix[y][x] = null;
-    }
-  }
-  pushNewElement(fieldMatrix);
-  return (fieldMatrix);
-}
-const pressArrowLeft = (fieldMatrix) => { 
-  for (let y = 0; y < fieldSize; y++) {
-    for (let x = 0; x < fieldSize; x++) {
-      if (fieldMatrix[y][x] === null) {
-        continue;
-      }
-      for (let x2 = x + 1; x2 < fieldSize; x2++) {
-        console.log(`y = ${y} x = ${x} x2 = ${x2} prev=${fieldMatrix[y][x]} next =${fieldMatrix[y][x2]}`);
-        if (fieldMatrix[y][x2] === null) {
-          continue;
-        }
-        if (fieldMatrix[y][x] === fieldMatrix[y][x2]) {
-          fieldMatrix[y][x] *= 2;
-          fieldMatrix[y][x2] = null;
-          x = x2;
-        } else {
-          x = x2 -1;
-        }
-        break;
-      }
-    }
-
-    let x3 = 0;
-    for (let x = 1; x < fieldSize; x++) {
-      if (fieldMatrix[y][x] === null) {
-        continue;
-      }
-      if (fieldMatrix[y][x3] != null) {
-        x3++;
-      }
-      if (x3 === x) {
-        continue;
-      }
-      fieldMatrix[y][x3] = fieldMatrix[y][x];
-      fieldMatrix[y][x] = null;
-    }
-  }
-  pushNewElement(fieldMatrix);
-  return (fieldMatrix);
 }
 const pressArrowRight = (fieldMatrix) => {
   for (let y = 0; y < fieldSize; y++) {
@@ -191,6 +119,7 @@ const pressArrowRight = (fieldMatrix) => {
         if (fieldMatrix[y][x] === fieldMatrix[y][x2]) {
           fieldMatrix[y][x] *= 2;
           fieldMatrix[y][x2] = null;
+          updateScore(fieldMatrix[y][x]);
           x = x2;
         } else {
           x = x2 + 1;
@@ -217,6 +146,89 @@ const pressArrowRight = (fieldMatrix) => {
   pushNewElement(fieldMatrix);
   return (fieldMatrix);
 }
+const pressArrowDown = (fieldMatrix) => {
+  for (let x = 0; x < fieldSize; x++) {
+    for (let y = fieldSize - 1; y > 0; y--) {
+      if (fieldMatrix[y][x] === null) {
+        continue;
+      }
+      for (let y2 = y - 1; y2 >= 0; y2--) {
+        if (fieldMatrix[y2][x] === null) {
+          continue;
+        }
+        if (fieldMatrix[y][x] === fieldMatrix[y2][x]) {
+          fieldMatrix[y][x] *= 2;
+          fieldMatrix[y2][x] = null;
+          updateScore(fieldMatrix[y][x]);
+          y = y2;
+        } else {
+          y = y2 + 1;
+        }
+        break;
+      }
+    }
+
+    let y3 = fieldSize - 1;
+    for (let y = fieldSize - 2; y >= 0; y--) {
+      if (fieldMatrix[y][x] === null) {
+        continue;
+      }
+      if (fieldMatrix[y3][x] != null) {
+        y3--;
+      }
+      if (y3 === y) {
+        continue;
+      }
+      fieldMatrix[y3][x] = fieldMatrix[y][x];
+      fieldMatrix[y][x] = null;
+    }
+  }
+  pushNewElement(fieldMatrix);
+  return (fieldMatrix);
+}
+const pressArrowLeft = (fieldMatrix) => {
+  for (let y = 0; y < fieldSize; y++) {
+    for (let x = 0; x < fieldSize; x++) {
+      if (fieldMatrix[y][x] === null) {
+        continue;
+      }
+      for (let x2 = x + 1; x2 < fieldSize; x2++) {
+        console.log(`y = ${y} x = ${x} x2 = ${x2} prev=${fieldMatrix[y][x]} next =${fieldMatrix[y][x2]}`);
+        if (fieldMatrix[y][x2] === null) {
+          continue;
+        }
+        if (fieldMatrix[y][x] === fieldMatrix[y][x2]) {
+          fieldMatrix[y][x] *= 2;
+          fieldMatrix[y][x2] = null;
+          updateScore(fieldMatrix[y][x]);
+          x = x2;
+
+        } else {
+          x = x2 - 1;
+        }
+        break;
+      }
+    }
+
+    let x3 = 0;
+    for (let x = 1; x < fieldSize; x++) {
+      if (fieldMatrix[y][x] === null) {
+        continue;
+      }
+      if (fieldMatrix[y][x3] != null) {
+        x3++;
+      }
+      if (x3 === x) {
+        continue;
+      }
+      fieldMatrix[y][x3] = fieldMatrix[y][x];
+      fieldMatrix[y][x] = null;
+    }
+  }
+  pushNewElement(fieldMatrix);
+  return (fieldMatrix);
+}
+
 
 document.addEventListener('keydown', function (event) {
   if (event.code === 'ArrowUp') {
@@ -240,7 +252,13 @@ document.addEventListener('keydown', function (event) {
 });
 
 
-let fieldMatrix = newGame();
+let fieldMatrix = initField();
+let yourScore = document.getElementsByClassName("score-container")[0];
+let bestScore = document.getElementsByClassName("best-container")[0];
+if (localStorage.getItem('bestScore') === null) {
+  localStorage.setItem('bestScore', '0')
+}
+bestScore.innerHTML = localStorage.getItem('bestScore');
 const fieldSize = fieldMatrix.length;
 fillField(fieldMatrix);
 console.log(fieldMatrix);
