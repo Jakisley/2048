@@ -31,9 +31,9 @@ const startNewGame = () => {
   localStorage.setItem('score', '0');
   saveField();
   fillField(fieldMatrix);
+  gameMessage.dataset.display = "none";
 }
 const finishGame = () => {
-  console.log('зашел');
   for (let x = 0; x < fieldSize; x++) {
     if (fieldMatrix[x].includes(null)) {
       console.log('вышел были нули');
@@ -44,20 +44,20 @@ const finishGame = () => {
     for (let x = 0; x < fieldSize; x++) {
       let x2 = x + 1;
       let y2 = y + 1;
-      if (x2 < fieldSize - 1) {
+      if (x2 < fieldSize) {
         if (fieldMatrix[y][x] === fieldMatrix[y][x2]) {
           return false;
         }
       }
 
-      else if (y2 < fieldSize - 1) {
-        if (fieldMatrix[y][x] === fieldMatrix[y2][x]){
+      else if (y2 < fieldSize) {
+        if (fieldMatrix[y][x] === fieldMatrix[y2][x]) {
           return false;
         }
       }
     }
   }
-  return true;
+  gameMessage.dataset.display = "show";
 }
 const getRandom = (min, max) => {
   min = Math.ceil(min + 1);  //добавляем 1 для искулючения умножения на ноль
@@ -315,14 +315,15 @@ document.addEventListener('keydown', function (event) {
     pressArrowRight();
   }
   if (finishGame()) {
-    gameMessage.classList.add("show");
+    gameMessage.dataset.display = "show";
   }
   else {
-    finishGame();
-    fillField();
-    saveField();
-    prevfieldMatrix = JSON.parse(localStorage.getItem('field'));
+    gameMessage.dataset.display = "none";
   }
+  finishGame();
+  fillField();
+  saveField();
+  prevfieldMatrix = JSON.parse(localStorage.getItem('field'));
 });
 let fieldMatrix = [];
 let prevfieldMatrix = [];
@@ -335,5 +336,7 @@ else {
 }
 const fieldSize = fieldMatrix.length;
 fillField();
+finishGame();
+const newGameBtn = document.querySelector('.restart-button').onclick = () => {startNewGame() };
+const retryButton = document.querySelector('.retry-button').onclick = () => {startNewGame() };
 
-const newGameBtn = document.querySelector('.restart-button').onclick = () => startNewGame();
