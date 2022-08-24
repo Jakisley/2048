@@ -5,8 +5,8 @@ let gameMessage = document.querySelector('.game-message');
 let fieldMatrix = [];
 let prevfieldMatrix = [];
 
-const newGameBtn = document.querySelector('.restart-button').onclick = () => {startNewGame() };
-const retryButton = document.querySelector('.retry-button').onclick = () => {startNewGame() };
+const newGameBtn = document.querySelector('.restart-button').onclick = () => { startNewGame() };
+const retryButton = document.querySelector('.retry-button').onclick = () => { startNewGame() };
 
 const initField = () => {
   let fieldMatrix = new Array(4).fill().map(() => new Array(4).fill(null));
@@ -24,7 +24,7 @@ const initField = () => {
     }
   }
   return fieldMatrix;
-}
+};
 
 const startNewGame = () => {
   fieldMatrix = initField();
@@ -32,12 +32,11 @@ const startNewGame = () => {
   saveField();
   fillField(fieldMatrix);
   gameMessage.dataset.display = "none";
-}
+};
 
 const isGameOver = () => {
   for (let x = 0; x < fieldSize; x++) {
     if (fieldMatrix[x].includes(null)) {
-      console.log('вышел были нули');
       return false;
     }
   }
@@ -45,30 +44,37 @@ const isGameOver = () => {
     for (let x = 0; x < fieldSize; x++) {
       let x2 = x + 1;
       let y2 = y + 1;
-      if (x2 === fieldSize){x2 = x - 1}
-      if (y2 === fieldSize){y2 = y -1}
-      console.log(`-----------------------------------`);
-      console.log(` до сравнения y = ${y} x = ${x} x2 = ${x2}`);
-      console.log(` до сравненияy у = ${y} x = ${x} y2 = ${y2}`);
-        console.log(` сравниваем y = ${y} x = ${x} x2 = ${x2}`);
-        if (fieldMatrix[y][x] === fieldMatrix[y][x2]) {
-          return false;
-        }
-        console.log(` сравниваем у = ${y}  y2 = ${y2} x = ${x}`);
-        if (fieldMatrix[y][x] === fieldMatrix[y2][x]) {
-          return false;
-        }
-      
+      if (x2 === fieldSize) { x2 = x - 1 }
+      if (y2 === fieldSize) { y2 = y - 1 }
+      if (fieldMatrix[y][x] === fieldMatrix[y][x2]) {
+        return false;
+      }
+      if (fieldMatrix[y][x] === fieldMatrix[y2][x]) {
+        return false;
+      }
+
     }
   }
   gameMessage.dataset.display = "show";
-}
+};
+
+const isWin = () => {
+  for (let x = 0; x < fieldSize; x++) {
+    if (fieldMatrix[x].includes(2048)) {
+      gameMessage.classList.remove("game-over");
+      gameMessage.classList.add("game-won");
+      gameMessage.firstChild.nextSibling.textContent = "You Win!";
+      gameMessage.dataset.display = "show";
+      return true;
+    }
+  }
+};
 
 const getRandom = (min, max) => {
   min = Math.ceil(min + 1);  //добавляем 1 для искулючения умножения на ноль
   max = Math.floor(max + 1);
   return Math.floor(Math.random() * (max - min)) + min - 1;  //вычитаем 1 для получения коректного значения
-}
+};
 
 const fillField = () => {
   let cells = document.getElementsByClassName("grid-cell");
@@ -81,7 +87,7 @@ const fillField = () => {
       z++
     }
   }
-}
+};
 
 const pushNewElement = () => {
   const emptyPlace = [];
@@ -104,7 +110,7 @@ const pushNewElement = () => {
   else {
     return false;
   }
-}
+};
 
 const isSameField = () => {
   console.log
@@ -114,11 +120,11 @@ const isSameField = () => {
   else {
     return false
   };
-}
+};
 
 const saveField = () => {
   localStorage.setItem('field', JSON.stringify(fieldMatrix));
-}
+};
 
 const updateScore = (newValue) => {
   yourScore.innerHTML = +yourScore.textContent + newValue;
@@ -127,7 +133,7 @@ const updateScore = (newValue) => {
     localStorage.setItem('bestScore', yourScore.textContent);
     bestScore.innerHTML = localStorage.getItem('bestScore');
   }
-}
+};
 
 const updateStorage = () => {
   localStorage.setItem('score', yourScore.textContent);
@@ -136,7 +142,7 @@ const updateStorage = () => {
     localStorage.setItem('bestScore', yourScore.textContent);
     bestScore.innerHTML = localStorage.getItem('bestScore');
   }
-}
+};
 
 const pressArrowUp = () => {
   for (let x = 0; x < fieldSize; x++) {
@@ -178,7 +184,7 @@ const pressArrowUp = () => {
   if (isSameField()) {
     pushNewElement();
   }
-}
+};
 
 const pressArrowRight = () => {
   for (let y = 0; y < fieldSize; y++) {
@@ -220,7 +226,7 @@ const pressArrowRight = () => {
   if (isSameField()) {
     pushNewElement();
   }
-}
+};
 const pressArrowDown = () => {
   for (let x = 0; x < fieldSize; x++) {
     for (let y = fieldSize - 1; y > 0; y--) {
@@ -261,7 +267,7 @@ const pressArrowDown = () => {
   if (isSameField()) {
     pushNewElement();
   }
-}
+};
 
 const pressArrowLeft = () => {
   for (let y = 0; y < fieldSize; y++) {
@@ -304,7 +310,7 @@ const pressArrowLeft = () => {
   if (isSameField()) {
     pushNewElement();
   }
-}
+};
 
 document.addEventListener('keydown', function (event) {
   if (event.code === 'ArrowUp') {
@@ -323,10 +329,12 @@ document.addEventListener('keydown', function (event) {
   if (event.code === 'ArrowRight') {
     pressArrowRight();
   }
-  isGameOver();
-  fillField();
-  saveField();
-  prevfieldMatrix = JSON.parse(localStorage.getItem('field'));
+    isGameOver();  
+    isWin(); 
+    fillField();
+    saveField();
+    prevfieldMatrix = JSON.parse(localStorage.getItem('field'));
+
 });
 
 if (!localStorage.getItem('bestScore')) {
