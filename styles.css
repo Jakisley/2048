@@ -8,7 +8,7 @@ body {
 }
 
 .content {
-  width: 500px;
+  width: 1000px;
   margin: 0 auto;
   margin-top: 30px;
 }
@@ -103,6 +103,7 @@ h1.title {
 }
 
 .game-container {
+  float: left;
   margin-top: 40px;
   position: relative;
   padding: 15px;
@@ -113,6 +114,12 @@ h1.title {
   width: 500px;
   height: 500px;
   box-sizing: border-box;
+}
+.operation-container{
+  margin-top: 40px;
+  width: 492px;
+  height: 500px;
+  font-size: 12px;
 }
 
 .grid-container {

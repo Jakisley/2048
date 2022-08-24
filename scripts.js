@@ -1,18 +1,19 @@
-
-let yourScore = document.querySelector(".score-container");
 let bestScore = document.querySelector(".best-container");
-let gameMessage = document.querySelector('.game-message');
 let fieldMatrix = [];
 let prevfieldMatrix = [];
+let operationMessage = '';
 
-const newGameBtn = document.querySelector('.restart-button').onclick = () => { startNewGame() };
-const retryButton = document.querySelector('.retry-button').onclick = () => { startNewGame() };
+const yourScore = document.querySelector(".score-container");
+const gameMessage = document.querySelector('.game-message');
+const newGameBtn = document.querySelector('.restart-button');
+const retryButton = document.querySelector('.retry-button');
+const operationContent = document.querySelector('.operation-container');
 
 const initField = () => {
   let fieldMatrix = new Array(4).fill().map(() => new Array(4).fill(null));
   let notMatch = false;
   yourScore.innerHTML = 0;
-  while (notMatch === false) {
+  while (!notMatch) {
     let x1 = getRandom(0, 4);
     let y1 = getRandom(0, 4);
     let x2 = getRandom(0, 4);
@@ -145,6 +146,7 @@ const updateStorage = () => {
 };
 
 const pressArrowUp = () => {
+  let isStaked = false;
   for (let x = 0; x < fieldSize; x++) {
     for (let y = 0; y < fieldSize; y++) {
       if (fieldMatrix[y][x] === null) {
@@ -157,6 +159,8 @@ const pressArrowUp = () => {
         if (fieldMatrix[y][x] === fieldMatrix[y2][x]) {
           fieldMatrix[y][x] *= 2;
           fieldMatrix[y2][x] = null;
+          operationMessage += ` colum ${x + 1} cell ${y + 1} + cell ${y2 + 1} = ${fieldMatrix[y][x]}`;
+          isStaked = true
           updateScore(fieldMatrix[y][x]);
           y = y2;
         } else {
@@ -181,12 +185,16 @@ const pressArrowUp = () => {
       fieldMatrix[y][x] = null;
     }
   }
+  if (!isStaked) {
+    operationMessage += " nothing to add";
+  }
   if (isSameField()) {
     pushNewElement();
   }
 };
 
 const pressArrowRight = () => {
+  let isStaked = false;
   for (let y = 0; y < fieldSize; y++) {
     for (let x = fieldSize - 1; x > 0; x--) {
       if (fieldMatrix[y][x] === null) {
@@ -199,6 +207,8 @@ const pressArrowRight = () => {
         if (fieldMatrix[y][x] === fieldMatrix[y][x2]) {
           fieldMatrix[y][x] *= 2;
           fieldMatrix[y][x2] = null;
+          operationMessage += ` row ${y + 1} cell ${x2 + 1} + cell ${x + 1} = ${fieldMatrix[y][x]}`;
+          isStaked = true;
           updateScore(fieldMatrix[y][x]);
           x = x2;
         } else {
@@ -223,11 +233,15 @@ const pressArrowRight = () => {
       fieldMatrix[y][x] = null;
     }
   }
+  if (!isStaked) {
+    operationMessage += " nothing to add";
+  }
   if (isSameField()) {
     pushNewElement();
   }
 };
 const pressArrowDown = () => {
+  let isStaked = false;
   for (let x = 0; x < fieldSize; x++) {
     for (let y = fieldSize - 1; y > 0; y--) {
       if (fieldMatrix[y][x] === null) {
@@ -240,6 +254,8 @@ const pressArrowDown = () => {
         if (fieldMatrix[y][x] === fieldMatrix[y2][x]) {
           fieldMatrix[y][x] *= 2;
           fieldMatrix[y2][x] = null;
+          operationMessage += ` colum ${x + 1} cell ${y + 1} + cell ${y2 + 1} = ${fieldMatrix[y][x]}`;
+          isStaked = true;
           updateScore(fieldMatrix[y][x]);
           y = y2;
         } else {
@@ -264,12 +280,16 @@ const pressArrowDown = () => {
       fieldMatrix[y][x] = null;
     }
   }
+  if (!isStaked) {
+    operationMessage += " nothing to add";
+  }
   if (isSameField()) {
     pushNewElement();
   }
 };
 
 const pressArrowLeft = () => {
+  let isStaked = false;
   for (let y = 0; y < fieldSize; y++) {
     for (let x = 0; x < fieldSize; x++) {
       if (fieldMatrix[y][x] === null) {
@@ -282,6 +302,8 @@ const pressArrowLeft = () => {
         if (fieldMatrix[y][x] === fieldMatrix[y][x2]) {
           fieldMatrix[y][x] *= 2;
           fieldMatrix[y][x2] = null;
+          operationMessage += ` row ${y + 1} cell ${x + 1} + cell ${x + 1} = ${fieldMatrix[y][x]}`;
+          isStaked = true;
           updateScore(fieldMatrix[y][x]);
           x = x2;
 
@@ -307,6 +329,9 @@ const pressArrowLeft = () => {
       fieldMatrix[y][x] = null;
     }
   }
+  if (!isStaked) {
+    operationMessage += " nothing to add";
+  }
   if (isSameField()) {
     pushNewElement();
   }
@@ -314,28 +339,41 @@ const pressArrowLeft = () => {
 
 document.addEventListener('keydown', function (event) {
   if (event.code === 'ArrowUp') {
+    operationMessage = "Moved UP:";
     pressArrowUp();
   }
 
   if (event.code === 'ArrowDown') {
+    operationMessage = "Moved DOWN:";
     pressArrowDown();
   }
 
   if (event.code === 'ArrowLeft') {
+    operationMessage = "Moved LEFT:";
     pressArrowLeft();
 
   }
 
   if (event.code === 'ArrowRight') {
+    operationMessage = "Moved RIGHT:";
     pressArrowRight();
   }
-    isGameOver();  
-    isWin(); 
-    fillField();
-    saveField();
-    prevfieldMatrix = JSON.parse(localStorage.getItem('field'));
+  isGameOver();
+  isWin();
+  fillField();
+  saveField();
+  operationContent.textContent += `\n${operationMessage}`;
+  prevfieldMatrix = JSON.parse(localStorage.getItem('field'));
+  console.log(operationMessage);
 
 });
+
+document.addEventListener('click', function (event) {
+  if (event.target === retryButton || event.target === newGameBtn) {
+    startNewGame();
+  }
+})
+
 
 if (!localStorage.getItem('bestScore')) {
   localStorage.setItem('bestScore', '0');
